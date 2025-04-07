@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Data Table</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Data from API</h1>
+    <table id="dataTable">
+        <thead>
+            <tr id="tableHeader">
+                <!-- Table headers will be dynamically added here -->
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Table rows will be dynamically added here -->
+        </tbody>
+    </table>
+ 
+    <script>
+        // Replace with your API URL
+        const apiUrl = 'http://127.0.0.1:5000/api/users';
+ 
+        // Function to fetch data from the API
+        async function fetchData() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                populateTable(data["data"]);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+ 
+        // Function to populate the table with data
+        function populateTable(data) {
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('tableBody');
+ 
+            // Clear existing table content
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+ 
+            if (data.length > 0) {
+                // Create table headers dynamically
+                const headers = Object.keys(data[0]);
+                headers.forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    tableHeader.appendChild(th);
+                });
+ 
+                // Create table rows dynamically
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    headers.forEach(header => {
+                        const td = document.createElement('td');
+                        td.textContent = item[header];
+                        tr.appendChild(td);
+                    });
+                    tableBody.appendChild(tr);
+                });
+            } else {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.textContent = 'No data available';
+                td.colSpan = 100; // Span across all columns
+                tr.appendChild(td);
+                tableBody.appendChild(tr);
+            }
+        }
+ 
+        // Fetch data when the page loads
+        fetchData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+[
+    {
+        "userID": 1,
+        "firstName": "Alice",
+        "totalBalance": 4225.21
+    },
+    {
+        "userID": 10,
+        "firstName": "Bob",
+        "totalBalance": 4220.897
+    },
+    {
+        "userID": 11,
+        "firstName": "Clara",
+        "totalBalance": 1417.628
+    },
+    {
+        "userID": 100,
+        "firstName": "Dave",
+        "totalBalance": 90123.008
+    },
+    {
+        "userID": 101,
+        "firstName": "Enold",
+        "totalBalance": 40740.658
+    },
+    {
+        "userID": 110,
+        "firstName": "Frank",
+        "totalBalance": 10001.007
+    }
+]

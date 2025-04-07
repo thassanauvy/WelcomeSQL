@@ -1,0 +1,104 @@
+CREATE TABLE Users 
+(userID INT, 
+email VARCHAR (99), 
+username VARCHAR (20), 
+password VARCHAR (20), 
+firstName VARCHAR (20), 
+lastName VARCHAR (20), 
+createdAt TIMESTAMP);
+
+INSERT INTO Users VALUES
+(0001, 'one@welcome.mail', 'userOne', 'welcome%one1', 'Alice', 'Uno', '2024-01-01 01:01:01'),
+(0010, 'two@welcome.mail', 'userTwo', 'welcome%two2', 'Bob', 'Dos', now),
+(0011, 'thr@welcome.mail', 'userThr', 'welcome%one3', 'Clara', 'Tres', '2024-03-03'),
+(0100, 'fou@welcome.mail', 'userFou', 'welcome%one4', 'Dave', 'Cuatro'),
+(0101, 'fiv@welcome.mail', 'userFiv', 'welcome%six5', 'Enold', 'Cinco', '2024-05-05'),
+(0110, 'six@welcome.mail', 'userSix', 'welcome%six6', 'Frank', 'Seis');
+
+
+CREATE TABLE Sessions
+(sessionID INT not NULL
+userID INT,
+createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+expiresAt TIMESTAMP not NULL,
+PRIMARY KEY (sessionID),
+FOREIGN KEY (userID) REFERENCES Users(userID));
+
+INSERT INTO Sessions VALUES
+(10001, 0001, CURRENT_TIMESTAMP, '2025-02-01 11:12:13'),
+(10010, 0010, CURRENT_TIMESTAMP, '2025-02-01 11:12:13'),
+(10011, 0011, '2024-02-01 21:03:13', '2025-02-01 11:12:13'),
+(10100, 0100, CURRENT_TIMESTAMP, '2025-02-01 11:12:13'),
+(100101, 0101, CURRENT_TIMESTAMP, '2025-02-01 11:12:13'),
+(100110, 0110, CURRENT_TIMESTAMP, '2025-02-01 11:12:13');
+
+CREATE TABLE Contacts
+(phoneID INT PRIMARY KEY,
+userID INT,
+phoneType VARCHAR (10),
+celluer VARCHAR (20),
+isPrimary BOOLEAN,
+FOREIGN KEY (userID) REFERENCES Users(userID));
+
+INSERT INTO Contacts VALUES
+(1001, 001, 'main', '111-222', true),
+(2001, 001, 'work', '111-333', false),
+(3001, 001, 'home', '111-444', false),
+(4001, 001, 'family', '100-222', false),
+(1010, 010, 'main', '222-111', true),
+(2010, 010, 'work', '202-021', false),
+(1011, 011, 'work', '333-021', true),
+(1100, 100, 'main', '400-004', true),
+(2100, 100, 'home', '401-104', false),
+(1101, 101, 'main', '540-554', true),
+(2101, 101, 'work', '500-554', false),
+(3101, 101, 'home', '500-999', false),
+(1110, 110, 'home', '600-656', true),
+(2110, 110, 'work', '666-001', false);
+
+
+SELECT u.firstName, u.lastName, c.phoneType, c.celluer FROM Users u JOIN Contacts c ON u.userID = c.userID;
+
+
+CREATE TABLE Banks
+(bankID INT PRIMARY KEY,
+bankName VARCHAR (20),
+bankBranch VARCHAR (20),
+bankCountry VARCHAR (20));
+
+INSERT INTO Banks VALUES
+(999001, 'Bank Oceania', 'Horizontal', 'New Zealand'),
+(999112, 'Tasmania Bank', 'Central', 'New Zealand'),
+(999003, 'Bank Oceania', 'State', 'New Zealand'),
+(888004, 'Bank Charity', 'Eastern', 'Somalia');
+
+
+CREATE TABLE Accounts
+(accountID INT PRIMARY KEY,
+bankID INT,
+userID INT,
+balance DECIMAL (8, 3),
+accountType VARCHAR (20),
+holding VARCHAR (20),
+isPrimary BOOLEAN,
+FOREIGN KEY (bankID) REFERENCES Banks(bankID),
+FOREIGN KEY (userID) REFERENCES Users(userID));
+
+INSERT INTO Accounts VALUES
+(111000, 999001, 001, 03312.310, 'personal', '111.999.001', true),
+(122110, 999003, 001, 00912.900, 'shared', '122.999.001', false),
+(211000, 999003, 010, 04220.897, 'family', '211.999.003', true),
+(399000, 999003, 011, 00123.818, 'family', '399.999.011', false),
+(300990, 999112, 011, 01293.810, 'personal', '300.999.099', true),
+(490900, 888004, 100, 90123.008, 'shared', '490.0x0.888', false),
+(500990, 999001, 101, 00213.010, 'virtual', 'vx5.500.999', false),
+(501105, 999112, 101, 01093.810, 'personal', '501.999.101', true),
+(599001, 999003, 101, 09310.020, 'shared', '599.999.101', false),
+(599099, 888004, 101, 30123.818, 'shared', '599.0x0.888', false),
+(699099, 999001, 110, 10001.007, 'personal', '699.999.110', true);
+
+SELECT u.firstName, u.lastName, a.accountType, a.holding FROM Users u JOIN Accounts a ON u.userID = a.userID;
+SELECT b.bankCountry, b.bankBranch, a.accountType, a.holding FROM Banks b JOIN Accounts a ON b.bankID = a.bankID;
+SELECT u.firstName, u.lastName, a.accountType, a.balance, b.bankName, b.bankBranch FROM Users u JOIN Accounts a ON u.userID = a.userID JOIN Banks b ON b.bankID = a.bankID;
+
+SELECT u.userID, u.firstName, u.lastName, SUM(a.balance) as totalBalance FROM Users u LEFT JOIN Accounts a ON u.userID = a.userID LEFT JOIN Contacts c ON a.userID = c.userID AND c.celluer = 'main' GROUP BY u.userID, u.firstName, u.lastName, c.celluer ORDER BY u.userID;

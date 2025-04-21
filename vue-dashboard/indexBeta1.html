@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WelcomeSQL Beta</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #001122;
+      color: #fff5f5;
+      overflow-x: hidden;
+    }
+    
+    #particleCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    header {
+      text-align: center;
+      padding: 2rem 0;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      color: #ecf8f3;
+      text-shadow: 0 0 10px rgba(37, 248, 143, 0.5);
+    }
+    
+    /* Form styling */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    input {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #251901;
+      border-radius: 6px;
+    }
+    
+    button {
+      padding: 10px;
+      background-color: #25f88f;
+      color: rgb(15, 0, 0);
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    button:hover {
+      background-color: #5f84fc;
+    }
+    
+    /* Table styling */
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: rgb(11, 1, 22);
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #1e2c03;
+    }
+    
+    th {
+      background-color: #16f3e8;
+      color: #01011d;
+      font-weight: bold;
+    }
+    
+    tr:hover {
+      background-color: #303a07;
+    }
+    
+    button + button {
+      margin-left: 0.5rem;
+    }
+    
+    /* Stats at bottom */
+    .dashboard-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(37, 248, 143, 0.3);
+    }
+    
+    .stat-card {
+      background: rgba(11, 1, 22, 0.8);
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(37, 248, 143, 0.3);
+    }
+    
+    .stat-title {
+      font-size: 1rem;
+      color: #16f3e8;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-change {
+      font-size: 0.9rem;
+      color: #25f88f;
+    }
+    
+    .negative {
+      color: #ff6b6b;
+    }
+    
+    .mode-switch {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(11, 1, 22, 0.8);
+      border-radius: 50px;
+      padding: 0.5rem;
+      z-index: 100;
+    }
+    
+    .mode-switch button {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+    
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+  
+  <div class="container">
+    <header>
+      <h1>WelcomeSQL <i><b>Beta</b></i></h1>
+    </header>
+
+    <!-- Your existing form sections remain unchanged -->
+    <section class="form-section">
+      <h2>Add Basic User</h2>
+      <div class="form-grid">
+        <input type="number" id="userID" placeholder="User ID" required />
+        <input type="text" id="firstName" placeholder="First Name" required />
+        <input type="text" id="lastName" placeholder="Last Name" required />
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="passkey" placeholder="Passkey" required />
+        <button id="addUserBtn">Add Basic User</button>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2>Add Full User</h2>
+      <form onsubmit="event.preventDefault(); addUserFull();">
+        <!-- Full user form content remains unchanged -->
+      </form>
+    </section>
+
+    <section class="table-section">
+      <h2>User List</h2>
+      <div class="table-container">
+        <table id="dataTable">
+          <thead>
+            <tr id="tableHeader"></tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </section>
+    
+    <section class="form-section">
+      <h2>Add Bank</h2>
+      <div class="form-grid">
+        <input type="number" id="bankID" placeholder="Bank ID (optional)" />
+        <input type="text" id="bankName" placeholder="Bank Name" required />
+        <input type="text" id="bankBranch" placeholder="Branch Name" required />
+        <input type="text" id="bankCountry" placeholder="Country" required />
+        <button id="addBankBtn" onclick="addBank()">Add Bank</button>
+      </div>
+    </section>
+    
+    <!-- Stats at bottom -->
+    <div class="dashboard-stats">
+      <div class="stat-card">
+        <div class="stat-title">Total Users</div>
+        <div class="stat-value" id="totalUsers">0</div>
+        <div class="stat-change" id="userChange">Loading...</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-title">Total Accounts</div>
+        <div class="stat-value" id="totalAccounts">0</div>
+        <div class="stat-change" id="accountChange">Loading...</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-title">Total Balance</div>
+        <div class="stat-value" id="totalBalance">$0</div>
+        <div class="stat-change" id="balanceChange">Loading...</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-title">Active Contacts</div>
+        <div class="stat-value" id="totalContacts">0</div>
+        <div class="stat-change" id="contactChange">Loading...</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mode switch buttons -->
+  <div class="mode-switch">
+    <button id="financialMode">Financial</button>
+    <button id="userMode">User Data</button>
+  </div>
+
+  <!-- Include your existing scripts -->
+  <script src="./js/crud.js"></script>
+  
+  <!-- Particle animation script -->
+  <script>
+    // Initialize canvas
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas to full window size
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    
+    // Track mouse position
+    let mouse = {
+      x: undefined,
+      y: undefined,
+      radius: 150
+    };
+    
+    window.addEventListener('mousemove', function(event) {
+      mouse.x = event.x;
+      mouse.y = event.y;
+    });
+    
+    // Create particle class
+    class Particle {
+      constructor(x, y, size, color, weight) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.color = color;
+        this.weight = weight;
+        this.originalSize = size;
+        this.originalX = x;
+        this.originalY = y;
+        this.connectionDistance = 200;
+        this.mode = 'financial'; // default mode
+      }
+      
+      update() {
+        // Mouse repulsion (in both modes)
+        if (mouse.x !== undefined && mouse.y !== undefined) {
+          let dx = this.x - mouse.x;
+          let dy = this.y - mouse.y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < mouse.radius) {
+            const angle = Math.atan2(dy, dx);
+            const force = (mouse.radius - distance) / mouse.radius;
+            const pushX = Math.cos(angle) * force * 5;
+            const pushY = Math.sin(angle) * force * 5;
+            
+            this.x += pushX;
+            this.y += pushY;
+          }
+        }
+        
+        // Different movement logic based on mode
+        if (this.mode === 'financial') {
+          // Financial mode: circular motion like currency flow
+          const time = Date.now() * 0.001;
+          const radius = 30 + this.weight * 20;
+          const speed = 0.3 - this.weight * 0.2;
+          
+          // Calculate new position based on circular motion
+          const newX = this.originalX + Math.cos(time * speed + this.weight * 10) * radius;
+          const newY = this.originalY + Math.sin(time * speed + this.weight * 10) * radius;
+          
+          // Smoothly interpolate to new position
+          this.x += (newX - this.x) * 0.03;
+          this.y += (newY - this.y) * 0.03;
+        } else {
+          // User data mode: gentle floating with slight gravitational pull
+          if (Math.abs(this.x - this.originalX) > 100 || Math.abs(this.y - this.originalY) > 100) {
+            this.x += (this.originalX - this.x) * 0.01;
+            this.y += (this.originalY - this.y) * 0.01;
+          } else {
+            this.x += (Math.random() - 0.5) * 0.5;
+            this.y += (Math.random() - 0.5) * 0.5;
+          }
+        }
+        
+        // Ensure particles stay within bounds
+        if (this.x < 0) this.x = 0;
+        if (this.x > canvas.width) this.x = canvas.width;
+        if (this.y < 0) this.y = 0;
+        if (this.y > canvas.height) this.y = canvas.height;
+        
+        // Draw the particle
+        this.draw();
+      }
+      
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        
+        // Add glow effect
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 15;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      
+      setMode(mode) {
+        this.mode = mode;
+        
+        // Reset position when changing modes
+        if (mode === 'financial') {
+          this.color = getRandomFinancialColor();
+        } else {
+          this.color = getRandomUserColor();
+        }
+      }
+    }
+    
+    // Color palettes
+    function getRandomFinancialColor() {
+      const colors = [
+        'rgba(37, 248, 143, 0.7)',  // Green
+        'rgba(22, 243, 232, 0.7)',  // Teal
+        'rgba(95, 132, 252, 0.7)',  // Blue
+        'rgba(255, 220, 100, 0.7)'  // Gold
+      ];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    function getRandomUserColor() {
+      const colors = [
+        'rgba(127, 255, 200, 0.7)',  // Soft green
+        'rgba(200, 255, 255, 0.7)',  // Light cyan
+        'rgba(180, 180, 255, 0.7)',  // Light blue
+        'rgba(255, 200, 200, 0.7)'   // Light pink
+      ];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    // Initialize particles
+    let particles = [];
+    
+    function initParticles() {
+      particles = [];
+      const particleCount = window.innerWidth < 768 ? 50 : 100;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const size = Math.random() * 2.5 + 1.5;
+        const color = getRandomFinancialColor();
+        const weight = Math.random(); // Used for movement calculations
+        
+        particles.push(new Particle(x, y, size, color, weight));
+      }
+    }
+    
+    // Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Update and draw particles
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+      }
+      
+      // Draw connections between particles that are close to each other
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < particles[i].connectionDistance) {
+            ctx.beginPath();
+            ctx.strokeStyle = particles[i].color.replace('0.7', (1 - distance / particles[i].connectionDistance) * 0.5);
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    }
+    
+    // Mode switching functionality
+    document.getElementById('financialMode').addEventListener('click', function() {
+      particles.forEach(particle => particle.setMode('financial'));
+    });
+    
+    document.getElementById('userMode').addEventListener('click', function() {
+      particles.forEach(particle => particle.setMode('user'));
+    });
+    
+    // Button interactions
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      button.addEventListener('mouseenter', function() {
+        mouse.radius = 100;
+      });
+      
+      button.addEventListener('mouseleave', function() {
+        mouse.radius = 150;
+      });
+      
+      button.addEventListener('click', function() {
+        if (this.id !== 'financialMode' && this.id !== 'userMode') {
+          // Create explosion effect on button click
+          for (let i = 0; i < 20; i++) {
+            setTimeout(() => {
+              const randomX = this.getBoundingClientRect().left + this.offsetWidth / 2 + (Math.random() - 0.5) * 100;
+              const randomY = this.getBoundingClientRect().top + this.offsetHeight / 2 + (Math.random() - 0.5) * 100;
+              
+              // Create temporary particle for explosion effect
+              const size = Math.random() * 3 + 2;
+              const color = getRandomFinancialColor();
+              const tempParticle = new Particle(randomX, randomY, size, color, Math.random());
+              particles.push(tempParticle);
+              
+              // Remove temporary particle after animation
+              setTimeout(() => {
+                const index = particles.indexOf(tempParticle);
+                if (index > -1) {
+                  particles.splice(index, 1);
+                }
+              }, 2000);
+            }, i * 50);
+          }
+        }
+      });
+    });
+    
+    // Initialize everything
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    initParticles();
+    animate();
+    
+    // Real-time stats update from /dashboard-stats endpoint
+    async function updateDashboardStats() {
+      try {
+        const res = await fetch(`${API_BASE}/dashboard-stats`);
+        const stats = await res.json();
+        
+        if (stats) {
+          document.getElementById('totalUsers').textContent = stats.totalUsers;
+          document.getElementById('totalAccounts').textContent = stats.totalAccounts;
+          document.getElementById('totalBalance').textContent = `$${stats.totalBalance}`;
+          document.getElementById('totalContacts').textContent = stats.totalContacts;
+          
+          // Clear the change indicators since your endpoint doesn't provide them
+          document.querySelectorAll('.stat-change').forEach(el => {
+            el.textContent = 'Live data';
+            el.classList.remove('negative');
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching dashboard stats:', err);
+        document.querySelectorAll('.stat-change').forEach(el => {
+          el.textContent = 'Update failed';
+          el.classList.add('negative');
+        });
+      }
+    }
+    
+    // Update stats on load and every 10 seconds
+    updateDashboardStats();
+    setInterval(updateDashboardStats, 10000);
+  </script>
+</body>
+</html>

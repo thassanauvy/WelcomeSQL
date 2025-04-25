@@ -1,0 +1,11 @@
+userID,email,username,passkey,firstName,lastName,joinDate
+1,one@welcome.mail,userOne,welcome%one1,Alice,Uno,2024-01-01 01:01:01
+10,two@welcome.mail,userTwo,welcome%two2,Bob,Dos,2025-02-03 10:20:10
+11,thr@welcome.mail,userThr,welcome%one3,Clara,Tres,2024-03-03 00:00:00
+100,fou@welcome.mail,userFou,welcome%one4,Dave,Cuatro,2025-02-03 10:20:10
+101,fiv@welcome.mail,userFiv,welcome%six5,Enold,Cinco,2024-05-05 00:00:00
+110,six@welcome.mail,userSix,welcome%six6,Frank,Seis,2025-02-03 10:20:10
+111,ext7@welcome.mail,extSev,extSevn,Gregory,Siete,2025-04-13 22:18:49
+1000,ext8@welcome.mail,extEght,welcome%eig8,Hank,Ocho,2025-04-13 21:45:35
+1001,ext9.welcome.guest,guestNine,welcome@nine9,Ian,Nueve,2025-04-18 20:33:27
+1010,john10@welcome.guest,johnTen,john10%,John,Diez,2025-04-19 00:24:26

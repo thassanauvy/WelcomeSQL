@@ -1,0 +1,10 @@
+authtoken: YOUR_NGROK_AUTH_TOKEN
+
+tunnels:
+  flaskAPI:
+    addr: 5000
+    proto: http
+
+  vueFrontend:
+    addr: 5173
+    proto: http
